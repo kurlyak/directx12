@@ -17,7 +17,7 @@ cbuffer cbPerObject : register(b0)
 struct VertexIn
 {
 	float3 PosL  : POSITION;
-    float2 Tex : TEXCOORD;
+    //float3 Tex : TEXCOORD;
 };
 
 struct VertexOut
@@ -30,11 +30,13 @@ struct VertexOut
 VertexOut VS(VertexIn vin)
 {
 	VertexOut vout;
-	
-	// Transform to homogeneous clip space.
-	vout.PosH = mul(float4(vin.PosL, 1.0f), gWorldViewProj);
 
-	vout.Tex = vin.Tex;
+	float2 Position = sign(vin.PosL.xy);
+    vout.PosH = float4(Position.xy,0, 1);
+
+    vout.Tex.x=0.5* (1+vout.PosH.x);
+    vout.Tex.y=0.5* (1-vout.PosH.y);
+
     
     return vout;
 }

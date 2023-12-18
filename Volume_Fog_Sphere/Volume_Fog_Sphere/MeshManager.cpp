@@ -273,13 +273,13 @@ void CMeshManager::LoadTextures()
 {
 	ThrowIfFailed(m_CommandList->Reset(m_DirectCmdListAlloc.Get(), nullptr));
 
-	auto CrateTex = std::make_unique<Texture>();
-	CrateTex->Name = "WoodCrateTex";
-	CrateTex->Filename = L"./texture256.bmp";
+	auto SceneTex = std::make_unique<Texture>();
+	SceneTex->Name = "SceneMeshTex";
+	SceneTex->Filename = L"./Room.bmp";
 
 	//открываем BMP файл для чтения в бинарном режиме
 	FILE* Fp = NULL;
-	fopen_s(&Fp, "texture256.bmp", "rb");
+	fopen_s(&Fp, "Room.bmp", "rb");
 	if (Fp == NULL)
 		MessageBox(NULL, L"Error Open File", L"INFO", MB_OK);
 
@@ -308,7 +308,7 @@ void CMeshManager::LoadTextures()
 
 	unsigned char* Res = new unsigned char[TextureWidth * TextureHeight * 4];
 
-	for (UINT i = 0; i < TextureWidth * TextureHeight; i++)
+	for (UINT i = 0; i < (TextureWidth * TextureHeight); i++)
 	{
 		UINT Indx1 = i * 3;
 		UINT Indx2 = i * 4;
@@ -319,12 +319,12 @@ void CMeshManager::LoadTextures()
 		Res[Indx2 + 3] = 255;
 	}
 
-	CrateTex->Resource = CreateTexture(m_d3dDevice.Get(),
-		m_CommandList.Get(), Res, TextureWidth * TextureHeight * 4, CrateTex->UploadHeap);
-	
+	SceneTex->Resource = CreateTexture(m_d3dDevice.Get(),
+		m_CommandList.Get(), Res, TextureWidth * TextureHeight * 4, SceneTex->UploadHeap);
+
 	delete[] Res;
 
-	m_Textures[CrateTex->Name] = std::move(CrateTex);
+	m_Textures[SceneTex->Name] = std::move(SceneTex);
 }
 
 Microsoft::WRL::ComPtr<ID3D12Resource> CMeshManager::CreateTexture(
@@ -370,6 +370,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CMeshManager::CreateTexture(
 	textureData.RowPitch = TextureWidth * 4;
 	textureData.SlicePitch = textureData.RowPitch * TextureHeight;
 
+
 	UpdateSubresources(cmdList, m_Texture.Get(), UploadBuffer.Get(), 0, 0, 1, &textureData);
 
 	cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_Texture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
@@ -387,17 +388,17 @@ void CMeshManager::Create_ShaderResource_Heap_And_View_Pass1()
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(m_SrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
-	auto WoodCrateTex = m_Textures["WoodCrateTex"]->Resource;
+	auto SceneMeshTex = m_Textures["SceneMeshTex"]->Resource;
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = WoodCrateTex->GetDesc().Format;
+	srvDesc.Format = SceneMeshTex->GetDesc().Format;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.MipLevels = WoodCrateTex->GetDesc().MipLevels;
+	srvDesc.Texture2D.MipLevels = SceneMeshTex->GetDesc().MipLevels;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-	m_d3dDevice->CreateShaderResourceView(WoodCrateTex.Get(), &srvDesc, hDescriptor);
+	m_d3dDevice->CreateShaderResourceView(SceneMeshTex.Get(), &srvDesc, hDescriptor);
 
 }
 
@@ -463,83 +464,51 @@ void CMeshManager::Create_Constant_Buffer_Pass1()
 
 void CMeshManager::Create_Cube_Geometry_Pass1()
 {
-	std::array<Vertex, 24> Vertices =
+	
+	//для наглядности примера захардкодим
+	//количество вершин = количество треугольников
+	//умножить на 3 вершины
+	std::array<Vertex, 2076 * 3> Vertices;
+
+	FILE* f;
+	fopen_s(&f, "room.txt", "rt");
+
+	char Buffer[1024];
+	fgets(Buffer, 1024, f);
+
+	//всего количество треугольников 2076
+	int Size;
+	sscanf_s(Buffer, "%d", &Size);
+
+	for (int i = 0; i < 2076 * 3; i++)
 	{
-		Vertex({ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(0.0f, 0.0f) }),
-		Vertex({ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(1.0f, 0.0f) }),
-		Vertex({ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1.0f, 1.0f) }),
-		Vertex({ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0f, 1.0f) }),
+		fgets(Buffer, 1024, f);
+		sscanf_s(Buffer, "%f %f %f %f %f", &Vertices[i].Pos.x,
+			&Vertices[i].Pos.y,
+			&Vertices[i].Pos.z,
+			&Vertices[i].Tex.x,
+			&Vertices[i].Tex.y);
+	}
 
-		Vertex({ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(0.0f, 0.0f) }),
-		Vertex({ DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(1.0f, 0.0f) }),
-		Vertex({ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(1.0f, 1.0f) }),
-		Vertex({ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0f, 1.0f) }),
-
-		Vertex({ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0f, 0.0f) }),
-		Vertex({ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(1.0f, 0.0f) }),
-		Vertex({ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(1.0f, 1.0f) }),
-		Vertex({ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0f, 1.0f) }),
-
-		Vertex({ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0f, 0.0f) }),
-		Vertex({ DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(1.0f, 0.0f) }),
-		Vertex({ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(1.0f, 1.0f) }),
-		Vertex({ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0f, 1.0f) }),
-
-		Vertex({ DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(0.0f, 0.0f) }),
-		Vertex({ DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f), DirectX::XMFLOAT2(1.0f, 0.0f) }),
-		Vertex({ DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(1.0f, 1.0f) }),
-		Vertex({ DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f), DirectX::XMFLOAT2(0.0f, 1.0f) }),
-
-		Vertex({ DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(0.0f, 0.0f) }),
-		Vertex({ DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f), DirectX::XMFLOAT2(1.0f, 0.0f) }),
-		Vertex({ DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1.0f, 1.0f) }),
-		Vertex({ DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0.0f, 1.0f) }),
-	};
-
-	std::array<std::uint16_t, 36> Indices =
-	{
-		3,1,0,
-		2,1,3,
-
-		6,4,5,
-		7,4,6,
-
-		11,9,8,
-		10,9,11,
-
-		14,12,13,
-		15,12,14,
-
-		19,17,16,
-		18,17,19,
-
-		22,20,21,
-		23,20,22
-	};
-
+	fclose(f);
+	
 	const UINT VbByteSize = (UINT)Vertices.size() * sizeof(Vertex);
-	const UINT IbByteSize = (UINT)Indices.size() * sizeof(std::uint16_t);
 
-	m_Cube = std::make_unique<MeshGeometry>();
-	m_Cube->Name = "Cube";
+	m_Scene = std::make_unique<MeshGeometry>();
+	m_Scene->Name = "Scene";
 
-	m_Cube->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(m_d3dDevice.Get(),
-		m_CommandList.Get(), Vertices.data(), VbByteSize, m_Cube->VertexBufferUploader);
+	m_Scene->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(m_d3dDevice.Get(),
+		m_CommandList.Get(), Vertices.data(), VbByteSize, m_Scene->VertexBufferUploader);
 
-	m_Cube->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(m_d3dDevice.Get(),
-		m_CommandList.Get(), Indices.data(), IbByteSize, m_Cube->IndexBufferUploader);
-
-	m_Cube->VertexByteStride = sizeof(Vertex);
-	m_Cube->VertexBufferByteSize = VbByteSize;
-	m_Cube->IndexFormat = DXGI_FORMAT_R16_UINT;
-	m_Cube->IndexBufferByteSize = IbByteSize;
+	m_Scene->VertexByteStride = sizeof(Vertex);
+	m_Scene->VertexBufferByteSize = VbByteSize;
 
 	SubmeshGeometry submesh;
-	submesh.IndexCount = (UINT)Indices.size();
+	submesh.VertexCount = (UINT)Vertices.size();
 	submesh.StartIndexLocation = 0;
 	submesh.BaseVertexLocation = 0;
 
-	m_Cube->DrawArgs["box"] = submesh;
+	m_Scene->DrawArgs["SceneMesh"] = submesh;
 }
 
 void CMeshManager::Create_RootSignature()
@@ -631,6 +600,10 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> CMeshManager::GetStaticSamplers
 
 void CMeshManager::Create_PipelineStateObject_Pass1()
 {
+	CD3DX12_RASTERIZER_DESC desc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);;
+	//desc.CullMode = D3D12_CULL_MODE_FRONT;
+	desc.CullMode = D3D12_CULL_MODE_BACK;
+
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
 	ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	psoDesc.InputLayout = { m_InputLayout.data(), (UINT)m_InputLayout.size() };
@@ -645,7 +618,8 @@ void CMeshManager::Create_PipelineStateObject_Pass1()
 		reinterpret_cast<BYTE*>(m_PsByteCode->GetBufferPointer()),
 		m_PsByteCode->GetBufferSize()
 	};
-	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	//psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	psoDesc.RasterizerState = desc; 
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	psoDesc.SampleMask = UINT_MAX;
@@ -737,6 +711,8 @@ void CMeshManager::Init_MeshManager(HWND hWnd)
 {
 	m_hWnd = hWnd;
 
+	m_Camera.InitCamera(m_ClientWidth, m_ClientHeight);
+
 	EnableDebugLayer_CreateFactory();
 
 	Create_Device();
@@ -785,14 +761,15 @@ void CMeshManager::Init_MeshManager(HWND hWnd)
 
 	Execute_Init_Commands();
 
-	DirectX::XMVECTOR Pos = DirectX::XMVectorSet(0, 0.0f, -8.0f, 1.0f);
-	DirectX::XMVECTOR Target = DirectX::XMVectorZero();
+	DirectX::XMVECTOR Pos = DirectX::XMVectorSet(25.0f, 5.0f, -5000.0f, 1.0f);
+	//DirectX::XMVECTOR Target = DirectX::XMVectorZero();
+	DirectX::XMVECTOR Target = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 	DirectX::XMVECTOR Up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	DirectX::XMMATRIX MatView = DirectX::XMMatrixLookAtLH(Pos, Target, Up);
 	DirectX::XMStoreFloat4x4(&m_View, MatView);
 
-	DirectX::XMMATRIX MatProj = DirectX::XMMatrixPerspectiveFovLH(0.25f * DirectX::XM_PI, 4.0f / 3.0f, 1.0f, 1000.0f);
+	DirectX::XMMATRIX MatProj = DirectX::XMMatrixPerspectiveFovLH(0.25f * DirectX::XM_PI, 4.0f / 3.0f, 1.0f, 50000.0f);
 	XMStoreFloat4x4(&m_Proj, MatProj);
 	
 	m_Timer.TimerStart(30);
@@ -803,6 +780,7 @@ void CMeshManager::Update_MeshManager()
 	m_Timer.CalculateFPS();
 	float ElapsedTime = m_Timer.GetElaspedTime();
 
+	/*
 	static float Angle = 0.0f;
 
 	DirectX::XMMATRIX RotY = DirectX::XMMatrixRotationY(Angle);
@@ -817,11 +795,15 @@ void CMeshManager::Update_MeshManager()
 	if (Angle > DirectX::XM_PI * 2.0f)
 		Angle = 0.0f;
 
-	DirectX::XMMATRIX WorldY = XMLoadFloat4x4(&MatWorldY);
-	DirectX::XMMATRIX WorldX = XMLoadFloat4x4(&MatWorldX);
-	DirectX::XMMATRIX World = WorldX * WorldY;
+	*/
+
+	//DirectX::XMMATRIX WorldY = XMLoadFloat4x4(&MatWorldY);
+	//DirectX::XMMATRIX WorldX = XMLoadFloat4x4(&MatWorldX);
+	//DirectX::XMMATRIX World = WorldX * WorldY;
+	DirectX::XMMATRIX World = XMLoadFloat4x4(&m_World);
 	DirectX::XMMATRIX Proj = XMLoadFloat4x4(&m_Proj);
-	DirectX::XMMATRIX MatView = XMLoadFloat4x4(&m_View);
+	//DirectX::XMMATRIX MatView = XMLoadFloat4x4(&m_View);
+	DirectX::XMMATRIX MatView = m_Camera.FrameMove(ElapsedTime);
 
 	//эту матрицу умножаем на вершины
 	DirectX::XMMATRIX WorldViewProj = World * MatView * Proj;
@@ -829,6 +811,7 @@ void CMeshManager::Update_MeshManager()
 	ObjectConstants ObjConstants;
 
 	DirectX::XMStoreFloat4x4(&ObjConstants.WorldViewProj, DirectX::XMMatrixTranspose(WorldViewProj));
+	DirectX::XMStoreFloat3(&ObjConstants.vCamPos, m_Camera.vCamPos);
 	
 	m_ObjectCB->CopyData(0, ObjConstants);
 }
@@ -862,13 +845,11 @@ void CMeshManager::Draw_MeshManager()
 	D3D12_GPU_VIRTUAL_ADDRESS cbAddress = m_ObjectCB->Resource()->GetGPUVirtualAddress();
 	m_CommandList->SetGraphicsRootConstantBufferView(1, cbAddress);
 
-	m_CommandList->IASetVertexBuffers(0, 1, &m_Cube->VertexBufferView());
-	m_CommandList->IASetIndexBuffer(&m_Cube->IndexBufferView());
+	m_CommandList->IASetVertexBuffers(0, 1, &m_Scene->VertexBufferView());
 	m_CommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	m_CommandList->DrawIndexedInstanced(
-		m_Cube->DrawArgs["box"].IndexCount,
-		1, 0, 0, 0);
+	m_CommandList->DrawInstanced(
+		m_Scene->DrawArgs["SceneMesh"].VertexCount, 1, 0, 0);
 
 	m_CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_RenderTargetTex.Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));

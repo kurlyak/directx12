@@ -8,9 +8,13 @@ Lighting_Phong
 <img src="https://github.com/kurlyak/directx12/blob/main/pics/Lighting_Phong.png" alt="DirectX 12 Lighting Phong" width=600 />
 
 
-Render_To_Texture
+Render_To_Texture used render to texture for example
 
 <img src="https://github.com/kurlyak/directx12/blob/main/pics/Render_To_Texture.png" alt="DirectX 12 Render To Texture" width=600 />
+
+Volume_Fog_Sphere Sphere mesh used for volume fog, used render to texture for example
+
+<img src="https://github.com/kurlyak/directx12/blob/main/pics/Volume_Fog_Sphere.png" alt="DirectX 12 Volume Fog" width=600 />
 
 
 Volume_Fog_TexColors Depth value writes to texture, and texture attached to render target

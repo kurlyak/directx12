@@ -23,11 +23,13 @@
 #include <unordered_map>
 #include <DirectXCollision.h>
 
-#include <directxmath.h>
+//#include <directxmath.h>
 
 #include "d3dUtil.h"
 
 #include "Timer.h"
+
+#include "Camera.h"
 
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
@@ -98,6 +100,7 @@ static DirectX::XMFLOAT4X4 Identity4x4()
 struct ObjectConstants
 {
 	DirectX::XMFLOAT4X4 WorldViewProj = Identity4x4();
+	DirectX::XMFLOAT3 vCamPos;
 };
 
 struct Vertex
@@ -113,7 +116,7 @@ struct VertexSAQ
 
 struct SubmeshGeometry
 {
-	UINT IndexCount = 0;
+	UINT VertexCount = 0;
 	UINT StartIndexLocation = 0;
 	INT BaseVertexLocation = 0;
 };
@@ -277,7 +280,7 @@ private:
 
 	std::unique_ptr<UploadBuffer<ObjectConstants>> m_ObjectCB = nullptr;
 
-	std::unique_ptr<MeshGeometry> m_Cube = nullptr;
+	std::unique_ptr<MeshGeometry> m_Scene = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RootSignature = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_PSO = nullptr;
@@ -294,6 +297,8 @@ private:
 	DirectX::XMFLOAT4X4 m_World = Identity4x4();
 	DirectX::XMFLOAT4X4 m_View = Identity4x4();
 	DirectX::XMFLOAT4X4 m_Proj = Identity4x4();
+
+	CFirstPersonCamera m_Camera;
 
 	UINT TextureWidth = 0;
 	UINT TextureHeight = 0;
