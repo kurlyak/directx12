@@ -8,19 +8,16 @@ class CFirstPersonCamera
 {
 public:
 	
-	/*
-	DirectX::XMFLOAT2 m_vMouseDelta;
-	DirectX::XMVECTOR           m_vVelocity;
-	FLOAT                 m_fDragTimer;
-	FLOAT                 m_fTotalDragTimeToZero;
-	DirectX::XMVECTOR           m_vVelocityDrag;
-	*/
-	DirectX::XMMATRIX matView;
-	DirectX::XMVECTOR vRight,vUp,vLook, vCamPos;
-	int nScreenWidth, nScreenHeight;
-	
-	void InitCamera(int nWidth, int nHeight);
+	DirectX::XMMATRIX MatView;
+
+	DirectX::XMVECTOR vCamPos;
+		
+	void InitCamera(int Width, int Height);
 	DirectX::XMMATRIX FrameMove(float fTime);
+
+private:
+	DirectX::XMVECTOR vRight, vUp, vLook;
+	int nScreenWidth, nScreenHeight;
 };
 
 

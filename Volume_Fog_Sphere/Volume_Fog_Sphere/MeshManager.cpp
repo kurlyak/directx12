@@ -780,29 +780,8 @@ void CMeshManager::Update_MeshManager()
 	m_Timer.CalculateFPS();
 	float ElapsedTime = m_Timer.GetElaspedTime();
 
-	/*
-	static float Angle = 0.0f;
-
-	DirectX::XMMATRIX RotY = DirectX::XMMatrixRotationY(Angle);
-	DirectX::XMFLOAT4X4 MatWorldY;
-	DirectX::XMStoreFloat4x4(&MatWorldY, RotY);
-
-	DirectX::XMMATRIX RotX = DirectX::XMMatrixRotationX(Angle);
-	DirectX::XMFLOAT4X4 MatWorldX;
-	DirectX::XMStoreFloat4x4(&MatWorldX, RotX);
-
-	Angle += ElapsedTime / 5.0f;
-	if (Angle > DirectX::XM_PI * 2.0f)
-		Angle = 0.0f;
-
-	*/
-
-	//DirectX::XMMATRIX WorldY = XMLoadFloat4x4(&MatWorldY);
-	//DirectX::XMMATRIX WorldX = XMLoadFloat4x4(&MatWorldX);
-	//DirectX::XMMATRIX World = WorldX * WorldY;
 	DirectX::XMMATRIX World = XMLoadFloat4x4(&m_World);
 	DirectX::XMMATRIX Proj = XMLoadFloat4x4(&m_Proj);
-	//DirectX::XMMATRIX MatView = XMLoadFloat4x4(&m_View);
 	DirectX::XMMATRIX MatView = m_Camera.FrameMove(ElapsedTime);
 
 	//эту матрицу умножаем на вершины
