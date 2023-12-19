@@ -1,7 +1,7 @@
 //#include "Header.h"
 #include "camera.h"
 
-void CFirstPersonCamera::InitCamera(int Width, int Height)
+void CFirstPersonCamera::Init_Camera(int Width, int Height)
 {
 	
 	//MatView = DirectX::XMMatrixIdentity();
@@ -19,7 +19,7 @@ void CFirstPersonCamera::InitCamera(int Width, int Height)
 	nScreenHeight = Height;
 }
 
-DirectX::XMMATRIX CFirstPersonCamera::FrameMove(float fTime)
+DirectX::XMMATRIX CFirstPersonCamera::Frame_Move(float fTime)
 {
 	
 	//mouse move
@@ -75,19 +75,23 @@ DirectX::XMMATRIX CFirstPersonCamera::FrameMove(float fTime)
 
 	if(GetAsyncKeyState('W')& 0xFF00) 
 	{
-		vAccel = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(vLook), 0.0f, DirectX::XMVectorGetZ(vLook)))), ratioMove * fTime);
+		DirectX::XMVECTOR vTemp = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(vLook), 0.0f, DirectX::XMVectorGetZ(vLook)))), ratioMove * fTime);
+		vAccel = DirectX::XMVectorAdd(vAccel, vTemp);
 	}
 	if(GetAsyncKeyState('S')& 0xFF00) 
 	{
-		vAccel = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(vLook), 0.0f, DirectX::XMVectorGetZ(vLook)))), -ratioMove * fTime);
+		DirectX::XMVECTOR vTemp = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(vLook), 0.0f, DirectX::XMVectorGetZ(vLook)))), -ratioMove * fTime);
+		vAccel = DirectX::XMVectorAdd(vAccel, vTemp);
 	}
 	if(GetAsyncKeyState('D')& 0xFF00) 
 	{
-		vAccel = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(vRight), 0.0f, DirectX::XMVectorGetZ(vRight)))), ratioMove * fTime);
+		DirectX::XMVECTOR vTemp = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(vRight), 0.0f, DirectX::XMVectorGetZ(vRight)))), ratioMove * fTime);
+		vAccel = DirectX::XMVectorAdd(vAccel, vTemp);
 	}
 	if(GetAsyncKeyState('A')& 0xFF00) 
 	{
-		vAccel = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(vRight), 0.0f, DirectX::XMVectorGetZ(vRight)))), -ratioMove * fTime);
+		DirectX::XMVECTOR vTemp = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(vRight), 0.0f, DirectX::XMVectorGetZ(vRight)))), -ratioMove * fTime);
+		vAccel = DirectX::XMVectorAdd(vAccel, vTemp);
 	}
 
 	vCamPos = DirectX::XMVectorAdd(vCamPos, vAccel);

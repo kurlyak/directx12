@@ -711,7 +711,7 @@ void CMeshManager::Init_MeshManager(HWND hWnd)
 {
 	m_hWnd = hWnd;
 
-	m_Camera.InitCamera(m_ClientWidth, m_ClientHeight);
+	m_Camera.Init_Camera(m_ClientWidth, m_ClientHeight);
 
 	EnableDebugLayer_CreateFactory();
 
@@ -782,7 +782,7 @@ void CMeshManager::Update_MeshManager()
 
 	DirectX::XMMATRIX World = XMLoadFloat4x4(&m_World);
 	DirectX::XMMATRIX Proj = XMLoadFloat4x4(&m_Proj);
-	DirectX::XMMATRIX MatView = m_Camera.FrameMove(ElapsedTime);
+	DirectX::XMMATRIX MatView = m_Camera.Frame_Move(ElapsedTime);
 
 	//эту матрицу умножаем на вершины
 	DirectX::XMMATRIX WorldViewProj = World * MatView * Proj;

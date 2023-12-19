@@ -12,8 +12,8 @@ public:
 
 	DirectX::XMVECTOR vCamPos;
 		
-	void InitCamera(int Width, int Height);
-	DirectX::XMMATRIX FrameMove(float fTime);
+	void Init_Camera(int Width, int Height);
+	DirectX::XMMATRIX Frame_Move(float fTime);
 
 private:
 	DirectX::XMVECTOR vRight, vUp, vLook;
