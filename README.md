@@ -12,7 +12,7 @@ Render_To_Texture used render to texture for example
 
 <img src="https://github.com/kurlyak/directx12/blob/main/pics/Render_To_Texture.png" alt="DirectX 12 Render To Texture" width=600 />
 
-Volume_Fog_Sphere Sphere mesh used for volume fog, used render to texture for example
+Volume_Fog_Sphere For volume fog used sphere mesh, used render to texture for example, used Camera class, you can move around the scene using keys W,S,A,D and mouse
 
 <img src="https://github.com/kurlyak/directx12/blob/main/pics/Volume_Fog_Sphere.png" alt="DirectX 12 Volume Fog" width=600 />
 
