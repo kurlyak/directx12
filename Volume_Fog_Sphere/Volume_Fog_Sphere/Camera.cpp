@@ -8,15 +8,15 @@ void CFirstPersonCamera::Init_Camera(int Width, int Height)
 
 	ShowCursor(FALSE);
 
-	vRight = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
-	vUp = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	vLook = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-	vCamPos = DirectX::XMVectorSet(25.0f, 5.0f, -6000.0f, 1.0f);
+	VecRight = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+	VecUp = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	VecLook = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	VecCamPos = DirectX::XMVectorSet(25.0f, 5.0f, -6000.0f, 1.0f);
 	
 	MatView = DirectX::XMMatrixIdentity();
 	
-	nScreenWidth = Width;
-	nScreenHeight = Height;
+	ScreenWidth = Width;
+	ScreenHeight = Height;
 }
 
 DirectX::XMMATRIX CFirstPersonCamera::Frame_Move(float fTime)
@@ -26,11 +26,11 @@ DirectX::XMMATRIX CFirstPersonCamera::Frame_Move(float fTime)
 	POINT mousePos;
 	GetCursorPos(&mousePos);
 
-	//if( (mousePos.x == nScreenWidth/2) && (mousePos.y == nScreenHeight/2) ) return MatView;
-	SetCursorPos(nScreenWidth/2, nScreenHeight/2);
+	//if( (mousePos.x == ScreenWidth/2) && (mousePos.y == ScreenHeight/2) ) return MatView;
+	SetCursorPos(ScreenWidth/2, ScreenHeight/2);
 
-	int DeltaX = nScreenWidth / 2 - mousePos.x;
-	int DeltaY = nScreenHeight / 2 - mousePos.y;
+	int DeltaX = ScreenWidth / 2 - mousePos.x;
+	int DeltaY = ScreenHeight / 2 - mousePos.y;
 
 	//что бы перемещать камеру вертикально
 	//поставте значение m_RotationScalerY
@@ -51,9 +51,9 @@ DirectX::XMMATRIX CFirstPersonCamera::Frame_Move(float fTime)
 	DirectX::XMVECTOR vUpTemp = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	matRotUp = DirectX::XMMatrixRotationAxis(vUpTemp,(float)DirectX::XMConvertToRadians(m_RotationScalerX));
 		
-	vRight = XMVector3Transform(vRight,matRotUp);
-	vUp = XMVector3Transform(vUp,matRotUp);
-	vLook = XMVector3Transform(vLook,matRotUp);
+	VecRight = XMVector3Transform(VecRight,matRotUp);
+	VecUp = XMVector3Transform(VecUp,matRotUp);
+	VecLook = XMVector3Transform(VecLook,matRotUp);
 		
 
 	//вертикальное смещение камеры (вокруг оси X)
@@ -62,11 +62,11 @@ DirectX::XMMATRIX CFirstPersonCamera::Frame_Move(float fTime)
 	else if (DeltaY == 0) m_RotationScalerY = 0;
 
 	DirectX::XMMATRIX matRotRight;
-	matRotRight = DirectX::XMMatrixRotationAxis(vRight, (float)DirectX::XMConvertToRadians(m_RotationScalerY));
+	matRotRight = DirectX::XMMatrixRotationAxis(VecRight, (float)DirectX::XMConvertToRadians(m_RotationScalerY));
 	
-	vRight = DirectX::XMVector3Transform(vRight,matRotRight);
-	vUp = DirectX::XMVector3Transform(vUp,matRotRight);
-	vLook = DirectX::XMVector3Transform(vLook,matRotRight);
+	VecRight = DirectX::XMVector3Transform(VecRight,matRotRight);
+	VecUp = DirectX::XMVector3Transform(VecUp,matRotRight);
+	VecLook = DirectX::XMVector3Transform(VecLook,matRotRight);
 	
 	//keyboard move
 
@@ -75,57 +75,57 @@ DirectX::XMMATRIX CFirstPersonCamera::Frame_Move(float fTime)
 
 	if(GetAsyncKeyState('W')& 0xFF00) 
 	{
-		DirectX::XMVECTOR vTemp = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(vLook), 0.0f, DirectX::XMVectorGetZ(vLook)))), ratioMove * fTime);
+		DirectX::XMVECTOR vTemp = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(VecLook), 0.0f, DirectX::XMVectorGetZ(VecLook)))), ratioMove * fTime);
 		vAccel = DirectX::XMVectorAdd(vAccel, vTemp);
 	}
 	if(GetAsyncKeyState('S')& 0xFF00) 
 	{
-		DirectX::XMVECTOR vTemp = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(vLook), 0.0f, DirectX::XMVectorGetZ(vLook)))), -ratioMove * fTime);
+		DirectX::XMVECTOR vTemp = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(VecLook), 0.0f, DirectX::XMVectorGetZ(VecLook)))), -ratioMove * fTime);
 		vAccel = DirectX::XMVectorAdd(vAccel, vTemp);
 	}
 	if(GetAsyncKeyState('D')& 0xFF00) 
 	{
-		DirectX::XMVECTOR vTemp = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(vRight), 0.0f, DirectX::XMVectorGetZ(vRight)))), ratioMove * fTime);
+		DirectX::XMVECTOR vTemp = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(VecRight), 0.0f, DirectX::XMVectorGetZ(VecRight)))), ratioMove * fTime);
 		vAccel = DirectX::XMVectorAdd(vAccel, vTemp);
 	}
 	if(GetAsyncKeyState('A')& 0xFF00) 
 	{
-		DirectX::XMVECTOR vTemp = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(vRight), 0.0f, DirectX::XMVectorGetZ(vRight)))), -ratioMove * fTime);
+		DirectX::XMVECTOR vTemp = DirectX::XMVectorScale(DirectX::XMLoadFloat3(&(DirectX::XMFLOAT3(DirectX::XMVectorGetX(VecRight), 0.0f, DirectX::XMVectorGetZ(VecRight)))), -ratioMove * fTime);
 		vAccel = DirectX::XMVectorAdd(vAccel, vTemp);
 	}
 
-	vCamPos = DirectX::XMVectorAdd(vCamPos, vAccel);
+	VecCamPos = DirectX::XMVectorAdd(VecCamPos, vAccel);
 	
 	//сторим видовую матрицу
 
-	vLook = DirectX::XMVector3Normalize(vLook);
-	vUp = DirectX::XMVector3Cross(vLook,vRight);
-	vUp = DirectX::XMVector3Normalize(vUp);
-	vRight = DirectX::XMVector3Cross(vUp,vLook);
-	vRight = DirectX::XMVector3Normalize(vRight);
+	VecLook = DirectX::XMVector3Normalize(VecLook);
+	VecUp = DirectX::XMVector3Cross(VecLook,VecRight);
+	VecUp = DirectX::XMVector3Normalize(VecUp);
+	VecRight = DirectX::XMVector3Cross(VecUp,VecLook);
+	VecRight = DirectX::XMVector3Normalize(VecRight);
 	
 	DirectX::XMFLOAT4X4 MatViewTemp;
 
-	MatViewTemp._11 = DirectX::XMVectorGetX(vRight);
-	MatViewTemp._21 = DirectX::XMVectorGetY(vRight);
-	MatViewTemp._31 = DirectX::XMVectorGetZ(vRight);
+	MatViewTemp._11 = DirectX::XMVectorGetX(VecRight);
+	MatViewTemp._21 = DirectX::XMVectorGetY(VecRight);
+	MatViewTemp._31 = DirectX::XMVectorGetZ(VecRight);
 
-	MatViewTemp._12 = DirectX::XMVectorGetX(vUp);
-	MatViewTemp._22 = DirectX::XMVectorGetY(vUp);
-	MatViewTemp._32 = DirectX::XMVectorGetZ(vUp);
+	MatViewTemp._12 = DirectX::XMVectorGetX(VecUp);
+	MatViewTemp._22 = DirectX::XMVectorGetY(VecUp);
+	MatViewTemp._32 = DirectX::XMVectorGetZ(VecUp);
 
-	MatViewTemp._13 = DirectX::XMVectorGetX(vLook);
-	MatViewTemp._23 = DirectX::XMVectorGetY(vLook);
-	MatViewTemp._33 = DirectX::XMVectorGetZ(vLook);
+	MatViewTemp._13 = DirectX::XMVectorGetX(VecLook);
+	MatViewTemp._23 = DirectX::XMVectorGetY(VecLook);
+	MatViewTemp._33 = DirectX::XMVectorGetZ(VecLook);
 
 	MatViewTemp._14 = 0.0f;
 	MatViewTemp._24 = 0.0f;
 	MatViewTemp._34 = 0.0f;
 	MatViewTemp._44 = 1.0f;
 
-	MatViewTemp._41 =-DirectX::XMVectorGetX(DirectX::XMVector3Dot(vCamPos, vRight ));
-    MatViewTemp._42 =-DirectX::XMVectorGetY(DirectX::XMVector3Dot(vCamPos, vUp    ));
-	MatViewTemp._43 =-DirectX::XMVectorGetZ(DirectX::XMVector3Dot(vCamPos, vLook  ));
+	MatViewTemp._41 =-DirectX::XMVectorGetX(DirectX::XMVector3Dot(VecCamPos, VecRight ));
+    MatViewTemp._42 =-DirectX::XMVectorGetY(DirectX::XMVector3Dot(VecCamPos, VecUp    ));
+	MatViewTemp._43 =-DirectX::XMVectorGetZ(DirectX::XMVector3Dot(VecCamPos, VecLook  ));
 
 	MatView = DirectX::XMMatrixIdentity();
 

@@ -10,14 +10,14 @@ public:
 	
 	DirectX::XMMATRIX MatView;
 
-	DirectX::XMVECTOR vCamPos;
+	DirectX::XMVECTOR VecCamPos;
 		
 	void Init_Camera(int Width, int Height);
 	DirectX::XMMATRIX Frame_Move(float fTime);
 
 private:
-	DirectX::XMVECTOR vRight, vUp, vLook;
-	int nScreenWidth, nScreenHeight;
+	DirectX::XMVECTOR VecRight, VecUp, VecLook;
+	int ScreenWidth, ScreenHeight;
 };
 
 

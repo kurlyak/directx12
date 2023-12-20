@@ -790,7 +790,7 @@ void CMeshManager::Update_MeshManager()
 	ObjectConstants ObjConstants;
 
 	DirectX::XMStoreFloat4x4(&ObjConstants.WorldViewProj, DirectX::XMMatrixTranspose(WorldViewProj));
-	DirectX::XMStoreFloat3(&ObjConstants.vCamPos, m_Camera.vCamPos);
+	DirectX::XMStoreFloat3(&ObjConstants.VecCamPos, m_Camera.VecCamPos);
 	
 	m_ObjectCB->CopyData(0, ObjConstants);
 }

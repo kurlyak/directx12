@@ -100,7 +100,7 @@ static DirectX::XMFLOAT4X4 Identity4x4()
 struct ObjectConstants
 {
 	DirectX::XMFLOAT4X4 WorldViewProj = Identity4x4();
-	DirectX::XMFLOAT3 vCamPos;
+	DirectX::XMFLOAT3 VecCamPos;
 };
 
 struct Vertex
