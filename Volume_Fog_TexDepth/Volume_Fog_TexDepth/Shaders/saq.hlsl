@@ -8,6 +8,7 @@ SamplerState gsamLinearClamp  : register(s3);
 SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp  : register(s5);
 
+static float FogFactor = 15.0f;
 
 struct VertexIn
 {
@@ -41,7 +42,7 @@ float4 PS(VertexOut pin) : SV_Target
 	float front = gDiffuseMap1.Sample(gsamLinearWrap, pin.Tex).r;
 	float back = gDiffuseMap2.Sample(gsamLinearWrap, pin.Tex).r;
 	
-	float k = (back - front) * 15.0f;
+	float k = (back - front) * FogFactor;
 
 	float3 FogColor = { 0.5f,0.5f,0.5f };
 
